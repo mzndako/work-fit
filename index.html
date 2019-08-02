@@ -1,0 +1,483 @@
+<html>
+    <head>
+
+        <title>
+            TEST YOUR FIT WITH WORK AND BE THE WISER
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="images/faviconIco.ico" rel="shortcut icon">
+        <link href="css/bootstrap.css" rel="stylesheet"/>
+        <link href="css/style.css" rel="stylesheet"/>
+        <script src="js/react.development.js"></script>
+        <script src="js/react-dom.development.js"></script>
+        <script src="js/browser.min.js"></script>
+        <script src="questions.js"></script>
+    </head>
+
+    <body>
+
+    <!--The entry point for all the DOM activity-->
+    <div align="center" style="margin-bottom: 150px;">
+        <div class="project-width" align="left">
+            <img src="images/header.png">
+        </div>
+        <div id="root" align="center" class="project-width"></div>
+
+    </div>
+
+        <script type="text/babel">
+
+            // Class that renders/load the homepage
+            class HomePage extends React.Component{
+                constructor(props){
+                    super(props);
+
+                }
+                //Navigate to the display you want
+                goToScreen(screen){
+                    screens.setState({screen: screen});
+                }
+
+                //Function that renders home page
+                render(){
+                    return (
+                        <div className="homepage">
+                            <div className="header">
+                                <h2>TEST YOUR FIT WITH WORK AND BE THE WISER</h2>
+                                Two self assessment tests will calibrate your fit with your workplace and your prospects for a fulfilling career. You will then be the wiser.
+                            </div>
+                            <div className="welcome_note" align="center">
+                                <img src={'images/IconMYOM.png'} />
+                                <h3>MY VIEW OF ME</h3>
+                                The first is <b style={{color: 'purple'}}>My View of Me</b> - this measures the extent to which you have those traits and attributes that make for a great employee.
+                                <br/>
+                                <br/>
+                                <img src={'images/IconOC.png'} />
+<h3>THE ORGANIZATIONAL COLONOSCOPY</h3>
+                                The second is <b style={{color: 'purple'}}>The Organizational Colonoscopy</b> - this measures the health of the organization in which you work.<br/>
+                                Upon completion of each test you will be placed in the color-coded <b><i>Box of Fortune, Mid-fortune or Misfortune</i></b>. <span style={{color: 'green'}}>GREEN</span> is best: <span style={{color: '#ffb759'}}>YELLOW</span> is cautionary: <span style={{color: 'red'}}>RED</span> is perilous.<br/>
+                            <br/>
+                                <img src={'images/IconResult.png'} />
+                                <h3>FORTUNE, MID-FORTUNE or MISFORTUNE</h3>
+                                Finally, when you have completed both tests you will find yourself in the <b><i>Circle of Fortune, Mid-fortune or Misfortune</i></b> which gives you an infographic of your happiness with your career <u>and</u> your workplace. <span style={{color: 'green'}}>GREEN on GREEN</span> is best whilst <span style={{color: 'red'}}>RED on RED</span> is dire. There are many other combinations that will be revealed and explained upon completion of both self-assessments.<br/><br/>
+                                You will then know why you feel the way you do with both your career and your workplace. Most importantly you'll be able to focus on what you need to do to be happier in that space that can consume four decades of your life - WORK!<br/><br/>
+
+                            </div>
+                            <br/>
+                            <br/>
+                            <button onClick={()=> this.goToScreen(2)} className="btn btn-info my-btn"> BEGIN </button>
+                        </div>
+                    );
+                }
+            }
+
+            //List of questions dialog
+            var QuestionList = props=>(
+                <div className="questionLabel" align="left">
+                    <b>QUESTION {props.count} <div>{props.phase === 2?second_phase_header[props.count-1]:""}</div></b><br/>
+                    <span style={{color: props.color}}>{props.question}</span>
+                </div>
+            );
+
+            //Display button component
+            var QuestionButton = props=>(
+                <button onClick={()=>props.onClick(props.label)} className={'ans btn '+filter_button_color(props.ans)}> {props.label.toUpperCase() } </button>
+            );
+
+            //Display Questions Page
+            class Questions extends React.Component{
+                constructor(props){
+                    super(props);
+                    if(!props.answers[40]){
+                        props.answers[40] = 1;
+                    }
+                    //get the answers from one the calling class
+                    this.state = {answers: props.answers, is_clicked: false};
+                    this.phase = this.state.answers[40] === 1?1:2;
+
+                }
+
+                componentDidUpdate() {
+
+
+                }
+
+                //Handle the button click event
+                handleClick(question_id, myanswer, phase){
+                    var all_ans = this.state.answers;
+                    all_ans[this.computeQuestionIndex(question_id, phase)] = myanswer;
+                    this.setState({answers: all_ans})
+                }
+
+                //Compute the question index using question phase number
+                computeQuestionIndex(question_id,phase){
+                    return phase === 1?question_id:question_id+20;
+                }
+
+                //Render the list of questions display
+                render(){
+
+                    //Get the question page to display. Either first phase or second phase
+
+                    let phase = this.phase;
+                    //Get questions
+                    var questions = phase === 1?first_phase_questions:second_phase_questions;
+                    var unanswered = 0;
+                    //Loop through all the questions
+                    var filtered_questions = questions.map((q, i)=>{
+                       //If question is empty, skip it
+                       if(q == ""){
+                           return;
+                       }
+
+                       let color = 'black';
+
+                       if(!this.state.answers[this.computeQuestionIndex(i, phase)]){
+                           unanswered++;
+                       }
+
+                       if(!this.state.answers[this.computeQuestionIndex(i, phase)] && this.state.is_clicked){
+                           color = 'red';
+                       }
+
+                       //Return a component for each question
+                       return <div key={i} className={'questionAll q-grey'}>
+                                    <QuestionList phase={phase} color={color} count={i+1} question={q} />
+                                    <div align="center" className="q-radio">
+                                        <label>
+                                        <input type="radio" onClick={()=>this.handleClick(i, 1, phase)} checked={this.state.answers[this.computeQuestionIndex(i, phase)] == 1?'checked=checked':''}/> 1
+                                        </label>
+                                        <label>
+                                            <input type="radio" onClick={()=>this.handleClick(i, 2, phase)} checked={this.state.answers[this.computeQuestionIndex(i, phase)] == 2?'checked=checked':''}/> 2
+                                        </label>
+                                        <label>
+                                            <input type="radio" onClick={()=>this.handleClick(i, 3, phase)} checked={this.state.answers[this.computeQuestionIndex(i, phase)] == 3?'checked=checked':''}/> 3
+                                        </label>
+
+                                    </div>
+                              </div>
+                    });
+
+                    var QuestionHeader = props=>{
+                        if(this.phase == 1) {
+                            return <div align="center" className="header">
+                                <h2>My View of Me</h2>
+                                This part measures the extent to which you have the traits that make an employee great.
+                                <br/>
+                                <div align="left">
+                                    <div>
+                                        <b>Scoring:</b><br/><br/>
+                                        1) No, the organization <br/>
+                                        2) Not Quite me<br/>
+                                        3) Yes, this is me.<br/>
+                                    </div>
+                                </div>
+                            </div>
+                        }else{
+                            return <div align="center" className="header">
+                                <h2>The Organizational Colonoscopy</h2>
+                                Take the test to see just how healthy your organization is from your perspective. Yes, it's time to look up yours.
+                                <br/>
+                                <div align="left">
+                                    <div>
+                                        <b>Scoring:</b><br/><br/>
+                                        1) No, the organization does not have this. It is not good at this at all. <br/>
+                                        2) Well, it has some of this - it's in part only.<br/>
+                                        3) Yes, the organization has this. It is really good here<br/>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    //Render the Question Page
+                    return(
+                        <div className="questions"  align="left">
+
+                            <div>
+                                <QuestionHeader/>
+
+                                <div align="center">
+                                    {filtered_questions}
+                                </div>
+
+                                <div className="marginTop">
+                                    <button onClick={()=>{
+                                        //Check If its first phase, navigate to home page
+                                        if(this.state.answers[40] === 1){
+                                            screens.setState({screen: 1, answers: []});
+                                        }else{
+                                            //Else navigate to third screen (RESULT SCREEN)
+                                            this.state.answers[40] = 1;
+                                            screens.setState({screen: 3, answers: this.state.answers});
+                                        }}} className="btn my-btn pull-left">{this.state.answers[40]==1?"START OVER":"PREVIOUS"}</button>
+                                    <button onClick={()=>{
+                                        this.setState({is_clicked:true});
+                                        if(unanswered > 0){
+                                            alert("Some questions remain unanswered");
+                                        }else{
+                                            screens.setState({screen: 3, answers: this.state.answers});
+                                        }
+
+                                    }} className="btn btn-info pull-right my-btn">NEXT</button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+            }
+
+
+            //ANSWER PAGE: Show answer page
+            class Answer extends React.Component{
+                constructor(props){
+                    super(props);
+                    this.phase = props.answers[40];
+                    this.answers = props.answers;
+                }
+
+                //Calculate score by summing up the total selections
+                calculateScore(){
+                    let total = 0;
+                    let start = this.phase==1?0:20;
+                    let end = this.phase==1?20:40;
+                    for(let x = start; x < end; x++){
+                        if(!this.props.answers[x]){
+                            continue;
+                        }
+                        total += this.props.answers[x];
+                    }
+                    return total;
+                }
+
+                //Construct the write up to show per score
+                scoreWriteUp(score){
+                    let color = this.scoreColor(score);
+
+                    if(this.phase === 1) {
+                        if (score >= 51) {
+                            return <p><b style={{color: color}} className="scoreText">Box of Fortune</b>You are
+                                thriving, satisfied with your contribution, consider yourself to be valued worker and
+                                you have those attributes that best ensure excellent career potential.</p>
+                        }
+                        if (score >= 31) {
+                            return <p><b style={{color: color}} className="scoreText">Box of Mid-fortune</b>You are
+                                generally content, enjoying what you do and have reasonable to good career propects.</p>
+                        }
+
+                        return <p><b style={{color: color}} className="scoreText">Box of Misfortune</b>You fail to meet
+                            the most basic requirements of your employer, you are in career crisis and ongoing
+                            employment is at risk.</p>
+                    }else{
+                        if (score >= 51) {
+                            return <p><b style={{color: color}} className="scoreText">Box of Fortune</b>
+                                Organization is thriving; optimism and longevity apparent. You are in a great place.</p>
+                        }
+                        if (score >= 31) {
+                            return <p><b style={{color: color}} className="scoreText">Box of Mid-fortune</b>Reasonable state of health but attention required with variables scoring 1.</p>
+                        }
+
+                        return <p><b style={{color: color}} className="scoreText">Box of Misfortune</b>Ill health apparent in important areas-intervention required</p>
+                    }
+                }
+
+                //Construct the color code to show for a an score rage
+                scoreColor(score){
+                    if(score >= 51){
+                        return "green"
+                    }
+                    if(score >= 31){
+                        return "#ffb759";
+                    }
+                    // if(score >= 31){
+                    //     return "purple";
+                    // }
+                    return "red";
+                }
+
+                //Render the Display Answer Page
+                render(){
+                    let score = this.calculateScore();
+                    return (
+                        <div className="answerWidth">
+                            <h2 style={{color: "purple"}}>RESULT</h2>
+                            <div className="score" style={{border: '3px solid '+this.scoreColor(score), color: this.scoreColor(score)}}>
+                                {score}
+                            </div>
+                            <br/>
+                            <div>
+                                {this.scoreWriteUp(score)}
+                            </div>
+                            <div>
+                                <br/>
+                                <b>Question:</b> Were you honest, brutally honest? Did you fully satisfy ALL of the descriptors in each of the 20 elements? if you cannot satisfy all descriptors in any one of the 20 elements you can only score 2 at best. So, go back and start over
+                            </div>
+                            <br/>
+                            <br/>
+                            <div className="marginTop">
+                                <button onClick={()=>{
+                                    if(this.phase === 1){
+                                        this.answers[40] = 1;
+                                        screens.setState({screen: 2, answers: this.answers});
+                                    }else{
+                                        this.answers[40] = 2;
+                                        screens.setState({screen: 2, answers: this.answers});
+                                    }
+                                }} className="btn my-btn pull-left">PREVIOUS</button>
+                                <button onClick={()=>{
+                                    //Check the current phase and navigate to the right screen
+                                      if(this.phase === 1){
+                                          this.answers[40] = 2;
+                                          screens.setState({screen: 2, answers: this.answers});
+                                      }else{
+                                          this.answers[40] = 2;
+                                          screens.setState({screen: 4, answers: this.answers});
+                                      }
+                                }} className="btn btn-info pull-right my-btn">NEXT</button>
+                            </div>
+                        </div>
+                    );
+
+                }
+            }
+
+            //ANSWER PAGE: Show answer
+            class AnswerAll extends React.Component{
+                constructor(props){
+                    super(props);
+                    this.answers = props.answers || [];
+                    this.answer1 = 0;
+                    this.answer2 = 0;
+                    this.calculateScore();
+                }
+
+                //Calculate score by summing up the total selections
+                calculateScore(){
+                    let total = 0;
+                    for(let x =0; x < 20;x++){
+                        if(!this.props.answers[x])
+                            continue;
+                        total += this.props.answers[x];
+                    }
+                    this.answer1 = total;
+
+                    total = 0;
+                    for(let x =20; x < 40;x++){
+                        if(!this.props.answers[x])
+                            continue;
+                        total += this.props.answers[x];
+                    }
+                    this.answer2 = total;
+                }
+
+                //Construct the write up to show per score
+                scoreWriteUp(color1, color2){
+                        return final_result_text[color1+"-"+color2];
+                }
+
+                //Construct the color code to show for a an score rage
+                scoreColor(score){
+                    if(score >= 51){
+                        return "Green"
+                    }
+                    if(score >= 36){
+                        return "#ffb759";
+                    }
+                    return "Red";
+                }
+
+                convertColor(color){
+                    if(color == "#ffb759"){
+                        return "Yellow";
+                    }
+                    return color;
+                }
+
+                //Render the Display Answer Page
+                render(){
+                    let color1 = this.scoreColor(this.answer1);
+                    let color2 = this.scoreColor(this.answer2);
+                    return (
+                        <div className="answerWidth final" align="center">
+                            <b className="ftop">My View of Me</b>
+                            <div  className="finalRound" align="center">
+                                <div className="rtop" style={{background: color1}}>
+
+                                </div>
+                                <div className="rbottom" style={{background: color2}}>
+
+                                </div>
+                            </div>
+                            <b className="fbottom">The Organizational Colonoscopy</b><br/>
+
+                            <span> <span style={{color: color1}}>{this.convertColor(color1)}</span> On <span style={{color: color2}}>{this.convertColor(color2)}</span> </span>
+
+                            <br/>
+                            <div className="writeUp">
+                                {this.scoreWriteUp(this.convertColor(color1), this.convertColor(color2))}
+                            </div>
+                            <br/>
+                            <br/>
+                            <div align="center">
+                            <div className="marginTop" style={{width: "100%;"}}>
+                                <button onClick={()=>{;
+                                        screens.setState({screen: 2, answers: this.answers});
+                                }} className="btn my-btn">PREVIOUS</button>
+                            </div>
+                            </div>
+                        </div>
+                    );
+
+                }
+            }
+
+
+            //SWITCH BETWEEN SCREENS/PAGES
+            class Screens extends React.Component{
+                constructor(props){
+                    super(props);
+                    this.state = {screen: this.props.screen, answers: props.answers || []};
+                }
+                render(){
+                    window.scrollTo(0, 0);
+
+                    if(this.state.screen == 1) {
+                        return <HomePage/>;
+                    }else if(this.state.screen == 2){
+                        return <Questions answers={this.state.answers} onClick={(ans)=>{
+                            let screen = 3;
+                            //Check which screen to proceed to
+                            if(ans[40] == 2){
+                                ans[40] = 2;
+                            }else{
+                                screen = 4;
+                            }
+                            this.setState({answers: ans, screen: screen})
+                        }} />
+                    }else if(this.state.screen == 3){
+                        return <Answer answers={this.state.answers} onClick={(ans)=>{
+
+                            this.setState({answers: ans, screen: 2})
+                        }} />
+                    }else if(this.state.screen == 4){
+                        return <AnswerAll answers={this.state.answers} onClick={(ans)=>{
+
+                            this.setState({answers: ans, screen: 2})
+                        }} />
+                    }
+                }
+            }
+
+            //The first DOM render
+            // Screen 1 means the home page
+            var screens = ReactDOM.render(
+                <Screens screen="1" />
+                ,
+                document.getElementById('root')
+            );
+
+
+        </script>
+    </body>
+
+</html>
